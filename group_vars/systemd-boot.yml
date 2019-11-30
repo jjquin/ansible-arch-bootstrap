@@ -1,0 +1,10 @@
+---
+# Variable file for systemd-boot role
+
+boot_drive:
+  name: 
+  size: 1G
+  path: "/mnt/efi"
+  label: BOOT_EFI
+  mnt_opts: "-o noauto,rw,relatime,fmask=0022,dmask=0022,codepage=437,iocharset=iso8859-1,shortname=mi    xed,utf8,errors=remount-ro"
+

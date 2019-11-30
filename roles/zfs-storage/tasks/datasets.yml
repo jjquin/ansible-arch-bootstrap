@@ -1,0 +1,26 @@
+---
+# zfs datasets tasks file for roles/zfs-install
+
+- name: manage zfs | create/remove datasets
+  zfs:
+    name: "{{ dataset.pool }}/{{ dataset.name }}"
+    state: "{{ dataset.state }}"
+    extra_zfs_properties:  "{{ dataset.extra_zfs_properties }}"
+  with_items: "{{ zfs_datasets }}"
+  when:
+    - zfs_datasets is defined
+    - datasets in zfs_actions | lower
+  loop_control:
+    loop_var: dataset
+
+- name: manage zfs | create/remove zvols
+  zfs:
+    name: "{{ zvol.pool }}/{{ zvol.name }}"
+    state: "{{ zvol.state }}"
+    extra_zfs_properties:  "{{ zvol.extra_zfs_properties }}"
+  with_items: "{{ zfs_volumes }}"
+  when:
+    - zfs_volumes is defined
+    - volumes in zfs_actions | lower
+  loop_control:
+    loop_var: zvol

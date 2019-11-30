@@ -1,0 +1,9 @@
+---
+# Variable file for role init-setup
+
+host_name: tpt450-nb
+
+domain_name: quinlivan.org
+
+timesync_ntp_hosts:
+  - 172.20.0.1

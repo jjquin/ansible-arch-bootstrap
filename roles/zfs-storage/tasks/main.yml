@@ -1,0 +1,12 @@
+---
+# main tasks file for roles/zfs-storage
+
+- name: zpools | include zpools.yml
+  include_tasks: zpools.yml
+  tags:
+    - zpools::pool_setup
+
+- name: zpools | include datastes.yml
+  include_tasks: datasets.yml
+  tags:
+    - zpools::datasets

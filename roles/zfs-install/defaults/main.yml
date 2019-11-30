@@ -1,0 +1,38 @@
+---
+# defaults file for roles/zfs-install
+
+# hostid so all installations can share zfs pools
+zfs_hostid:
+
+# pacman key for archzfs repository
+zfs_archzfs_key: F75D9D76
+
+# packages for each distribution
+zfs_packages:
+  - zfs-linux
+  - zfs-linux-lts
+
+# zfs performance tuning options in /etc/modprobe.d/zfs.conf
+zfs_performance_tuning:
+  zfs_prefetch_disable: 1
+  zfs_txg_timeout: 5
+  # zfs_arc_max 1/2 total system memory
+  zfs_arc_max: "{{ (ansible_memtotal_mb | int * 1024 * 1024 * 0.5) | round | int }}"
+  # zfs_arc_meta_limit 1/4 zfs_arc_max
+  zfs_arc_meta_limit: "{{ (ansible_memtotal_mb | int * 1024 * 1024 * 0.125) | round | int }}"
+  # zfs_arc_min 1/2 zfs_arc_meta_limit
+  zfs_arc_min: "{{ (ansible_memtotal_mb | int * 1024 * 1024 * 0.0625) | round | int }}"
+  zfs_top_maxinflight: 64
+  zfs_resilver_min_time: 5000
+  zfs_resilver_delay: 0
+
+
+# systemd services necessory to import and mount zfs pools/zfs_datasets
+zfs_systemd:
+  - zfs.target
+  - zfs-mount.service
+
+# should be run weekly for consumer drives and monthly for enterprise drives
+# example: 'Sun *-*-* 03:10:00' for weekly on Sunday at 3:10 am
+# example: '*-*-01 23:00:00' for monthly at 11 pm
+zfs_scrub_timer: 'Sun *-*-* 03:10:00' # zpool scrub timer

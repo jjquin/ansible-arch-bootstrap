@@ -1,0 +1,6 @@
+---
+# handlers file for init-setup
+
+- name: init-setup | set clock to hardware clock
+  command: hwclock --systohc
+  listen: timezone changed

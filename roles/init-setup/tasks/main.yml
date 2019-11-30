@@ -1,0 +1,48 @@
+---
+# tasks file for init-setup
+
+
+- name: init-setup | set timezone
+  timezone:
+    - name: "{{ timesync_timezone }}"
+  notify: timezone changed
+
+- name: init-setup | configure systemd-timesyncd
+  template:
+    src: timesyncd.conf.j2
+    dest: /etc/systemd/timesyncd.conf
+    mode: 0644
+    owner: root
+    group: root
+
+- name: init-setup | enable systemd-timesyncd
+  service:
+    name: systemd-timesyncd.service
+    enabled: yes
+
+- name: init-setup | set locale
+  locale_gen:
+    name: en_US.UTF-8
+    state: present
+
+- name: init-setup | set hostname
+  lineinfile:
+    path: /etc/hostname
+    line: "{{ host_name }}"
+
+- name: init-setup | setup hosts file
+  blockinfile:
+    path: /etc/hosts
+    block: |
+      127.0.0.1     localhost
+      ::1           localhost
+      127.0.0.1       "{{ host_name }}.{{ domain_name }}"
+
+# note: temp password will be changed manuall after 1st reboot
+- name: init-setup | set root password
+  user:
+    name: root
+    password: temppass
+    state: present
+
+

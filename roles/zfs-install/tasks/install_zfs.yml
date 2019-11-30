@@ -1,0 +1,67 @@
+---
+# install zfs tasks file for roles/zfs-install
+
+- name: install zfs | add archzfs repository to pacman.conf
+  copy:
+    path: archzfs
+    dest: /etc/pacman.d
+    owner: root
+    group: root
+    mode: 0644
+
+- name: install zfs | add archzfs pacman repository key
+  pacman-key:
+    id: "{{ archzfs_key }}"
+
+- name: install zfs | install packages on Archlinux
+  pacman:
+    name: "{{ packages }}"
+    update_cache: yes
+  with_items: "{{ zfs_packages }}"
+  loop_control:
+      loop_var: packages
+
+- name: install zfs | confirm zfs module loaded
+  modprobe:
+    name: zfs
+    state: present
+
+# set hostid to match for all installed distributions
+- name: Install zfs | check hostid
+  command: /usr/bin/hostid
+  register: current_hostid
+  ignore_errors: true
+  changed_when: false
+
+- name: install zfs | delete hostid if not zfs_hostid
+  file:
+    path: /etc/hostid
+    state: absent
+  when:
+    - zfs_hostid is defined
+    - current_hostid.stout | search( zfs_hostid )
+
+- name: set zfs hostid | set to zfs_hostid
+  command: /usr/bin/zgenhostid {{ zfs_hostid }}
+  when:
+    - zfs_hostid is defined
+    - current_hostid.stout | search( zfs_hostid )
+
+# setup zfs performance tuning
+- name: install zfs | copy zfs.conf template to host
+  template:
+    src: modprobe_zfs.conf.j2
+    dest: /etc/modprobe.d/zfs.conf
+    owner: root
+    group: root
+    mode: "0644"
+    state: present
+
+- name: install zfs | enable zfs services
+  systemd:
+    name: "{{ services }}"
+    enabled: yes
+    masked: no
+  with_items: "{{ zfs_systemd }}"
+  loop_control:
+    loop_var: services

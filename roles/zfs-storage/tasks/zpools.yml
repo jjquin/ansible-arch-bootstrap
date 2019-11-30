@@ -1,0 +1,59 @@
+---
+# zpools tasks file for roles/zfs-storage
+
+- name: manage zpools | gather zpools status
+  command: zpool status
+  changed_when: false
+  register: zpools
+  check_mode: no
+
+- name: manage zpools | create zpools
+  command: >
+    zpool create ashift={{ pool.ashift }}
+    {{ pool.raid_type | default( omit ) }}
+    {{ pool.drives | join( ' ' ) }}
+  register: zpool_created
+  with_items: "{{ zfs_pools }}"
+  when:
+    - pool.name not in zpools.stdout
+    - pool.state | lower == present
+    - pool.devices.0 not in zpools.stdout
+    - pool.action | lower == create
+  loop_control:
+    loop_var: pool
+
+- name: manage zpools | set extra properties
+  zfs:
+    name: {{ pool.name }}
+    state: present
+    extra_zfs_properties: pool.extra_zfs_properties
+  with_items: "{{ zfs_pools }}"
+  when:
+    - pool.name not in zpools.stdout
+    - pool.state | lower == present
+    - pool.devices.0 not in zpools.stdout
+    - pool.action | lower == create
+
+- name: manage zpools | get zpools size
+  zpool_facts:
+    pool: {{ pool.name }}
+    properties: name,size
+    parsable: yes
+    register: zpools_size
+  loop_control:
+    loop_var: pool
+
+- name: manage zpools | create reserve dataset
+  zfs:
+    name: "{{ pool.name }}/reserve"
+    state: present
+    extra_zfs_properties:
+      mountpoint: none
+      canmount: off
+      reservation: "{{ (zpools_size.size | int * zfs_reserve_size) | round | int }}"
+  with_items: "{{ zpools_size }}"
+  when:
+    - zfs_reserve_size is defined
+  loop_control:
+    loop_var: pool
+

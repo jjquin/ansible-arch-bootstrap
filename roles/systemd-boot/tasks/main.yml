@@ -1,0 +1,64 @@
+---
+# tasks file for systemd-boot
+
+- name: systemd-boot | delete boot drive partitions
+  command: "sgdisk -z /dev/disk/by-id/{{ boot_drive.name }}"
+  when:
+    - boot_drive.action is defined
+    - boot_drive.action is set to create
+
+- name: systemd-boot | create boot partition
+  command: "sgdisk -n1:1M:{{ boot_drive.size }} -t1:EFOO /dev/disk/by-id/{{ boot_drive.name }}"
+  when:
+    - boot_drive.action is defined
+    - boot_drive.action is set to create
+
+- name: systemd-boot | format boot partition
+  filesystem: 
+    dev: "/dev/disk/by-id/{{ boot_drive.name }}"
+    fstype: vfat
+    opts: "-F 32 -n {{ boot_drive.label }}"
+
+- name: systemd-boot | create mountpoint
+  file:
+    path: "{{ boot_drive.path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+
+- name: systemd-boot | mount boot_drive
+  mount:
+    path: "{{ boot_drive.path }}"
+    src: "/dev/disk/by-id/{{ boot_drive.name }}"
+    opts: "{{ boot_drive.mnt_opts }}"
+    fstype: vfat
+    state: mounted
+
+- name: systemd-boot | install systemd-boot
+  command: "bootctl --path={{ boot_drive.path }} install"
+
+- name: systemd-boot | check status
+  command: "bootctl status"
+  register: bootctl_status
+
+- name: systemd-boot | setup main boot env directory
+  file:
+    path: "{{ boot_drive.path }}/boot"
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+
+- name: systemd-boot | setup boot env directories
+  file:
+    path: "{{ boot_drive.path }}/boot/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+  with_items: "{{ boot_env_dirs }}"
+
+- name: systemd-boot | copy boot files to env directories
+  file:
+    path: 

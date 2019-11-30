@@ -1,0 +1,32 @@
+---
+# install zfs tasks file for roles/zfs-install
+
+# setup zpool scrub service
+- name: zpool scrub | copy systemd zpool-scrub.service to host
+  copy:
+    src: systemd_system_zpool-scrub@.service
+    dest: /etc/systemd/system/zpool-scrub@.service
+    owner: root
+    group: root
+    mode: "0644"
+  register: scrub_service
+
+- name: zpool scrub | copy systemd zpool-scrub.timer template to host
+  template:
+    src: systemd_system_zpool-scrub.timer.j2
+    dest: /etc/systemd/system/zpool-scrub.timer
+    owner: root
+    group: root
+    mode: "0644"
+    register: scrub_timer
+
+# enable systemd zfs services
+- name: zpool scrub | enable zpool-scrub.timer
+  systemd:
+    name: zpool-scrub@{{ pool.name }}.timer
+    enabled: yes
+    state: started
+    daemon_reload: "{{ scrub_service.changed or scrub_timer.changed }}"
+  with_items: "{{ zfs_pools }}"
+  loop_control:
+    loop_var: pool

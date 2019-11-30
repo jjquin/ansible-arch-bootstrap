@@ -1,0 +1,39 @@
+---
+# defaults file for roles/zfs-storage
+
+zfs_pools: []
+# - name: pool name
+#   action: create or add
+#   state: present or absent
+#   raid_type: mirror, raidz1, raidz2, or raidz3 leave blank for stripe
+#   drives: list of drives to add to the mirror, raidz or stripe
+#   extra_zpool_properties: list of pool properties
+#     ashift: 9 for 512b sectors, 12 for 4K bytes sectors
+#   extra_zfs_properties: list of properties to assign to the pools root dataset
+#     compression: lz4
+#     xattr: sa
+#     normalization: formD
+#     atime: off
+#     canmount: off
+#     mountpoint: none
+
+zfs_reserve_size: 0.2 # reserve part of pool so it doesn't get full
+# use decimal value (i.e 0.2 for 20%)
+
+zfs_datasets: []
+# - name: dataset name
+#   pool: pool name
+#   state: present or absent
+#   extra_zfs_properties: list of properties to assign to dataset
+#     mountpoint: path, none or legacy - only include if it isn't inherited
+#     canmount: off, on, noauto - not inherited
+#   legacy_mount: mountpoint for legacy mounts
+#   legacy_fstab: fstab options for legacy mounts
+
+zfs_volumes: []
+# - name: dataset name
+#   pool: pool name
+#   state: present or absent
+#   extra_zfs_properties: list of properties to assign to dataset
+#     mountpoint: path, none or legacy - only include if it isn't inherited
+#     canmount: off, on, noauto - not inherited

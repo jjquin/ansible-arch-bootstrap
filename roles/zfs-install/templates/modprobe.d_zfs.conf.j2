@@ -1,0 +1,6 @@
+# {{ ansible_managed | comment }}
+
+{% for item in {{ zfs_performance_tuning | dict2list }} %}
+options zfs {{ item.key }={{ item.detail }}
+{% endfor %}
+

@@ -1,0 +1,20 @@
+---
+# variables file for pacstrap
+
+reflector: yes
+
+pacstrap_files:
+  - base
+  - base-devel
+  - linux
+  - linux-lts
+  - nano
+  - linux-firmware
+  - linux-headers
+  - intel-ucode
+  - efibootmgr
+  - dosfstools
+  - gptfdisk
+  - git
+  - python3
+  - ansible

@@ -1,0 +1,34 @@
+---
+# main tasks file for roles/zfs-install
+
+- name: install zfs | check variables
+  fail:
+    msg: "Failed - {{ var_name }} is not defined"
+  with_items:
+    - zfs_archzfs_key
+    - zfs_packages
+    - zfs_performance_tuning
+    - zfs_systemd
+    - zfs_scrub_timer
+  when:
+    - var_name is not defined
+  loop_control:
+    loop_var: var_name
+  tags:
+    - zfs::check_vars
+
+- name: install zfs | include install_zfs.yml
+  include_tasks: install_zfs.yml
+  tags:
+    - zfs::install
+
+- name: install zfs | include scrub_timer.yml
+  include_tasks: scrub_timer.yml
+  tags:
+    - zfs::scrub_timer
+
+- name: install zfs | set zfs pool cachefile
+  command: "zpool set cachefile=/etc/zfs/zpool.cache {{ pool.name }}"
+  with_items: "{{ zfs_pools }}"
+  when:
+    - zfs_pools is defined

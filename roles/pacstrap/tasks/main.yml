@@ -1,0 +1,41 @@
+---
+# tasks file for pacstrap
+
+- name: pacstrap | reflector
+  command: "reflector --latest {{ reflector.servers }} --protocol https --sort rate --save /etc/pacman.d/mirrorlist"
+  when: 
+    - refector is defined
+
+- name: pacstrap | install
+  command: "pacstrap -i /mnt {{ pacstrap_files | join (' ') }}"
+  when: 
+    - pacstrap_files is defined
+
+- name: pacstrap | copy bootstrap
+  copy:
+    src: /root/arch-bootstrap
+    dest: /mnt/root
+
+- name: pacstrap | mkinitcpio.conf
+  replace:
+    path: /mnt/etc/mkinitcpio.conf
+    regexp: "filesystems keyboard fsck"
+    replace: "keyboard zfs filesystems shutdown"
+
+- name: pacstrap | swappinness
+  copy:
+    src: 99-swappinness.conf
+    dest: /mnt/etc/sysctl.d
+    owner: root
+    group: root
+    mode: 0644
+
+- name: pacstrap | journald
+  copy: 
+    src: 99-zfs.conf
+    dest: /mnt/etc/systemd/journald.conf.d
+    owner: root
+    group: root
+    mode: 0644
+
+    

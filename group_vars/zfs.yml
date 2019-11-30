@@ -1,0 +1,170 @@
+---
+# zfs pools and datasets for arch-bootstrap
+
+zfs_hostid: dadab0de
+
+zfs_pools: 
+  - name: zroot
+    action: create
+    state: present
+    drives: /dev/disk/by-id/ata-Samsung_SSD_860_EVO_500GB_S3Z1NB0K800238N
+    ashift: 12
+    extra_zfs_properties:
+      mountpoint: none
+      canmount: off
+      compression: lz4
+      normalization: formD
+      atime: off
+      setuid: off
+      devices: off
+      exec: off
+
+zfs_datasets: [
+  - name: crypt
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      canmount: off
+      encryption: on
+      keyformat:passphrase
+  - name: crypt/arch
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      canmount: off
+  - name: crypt/arch/ROOT
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      canmount: off
+      setuid: on
+      devices: on
+      exec: on
+  - name: crypt/arch/ROOT/default
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      mountpoint: "/"
+  - name: crypt/arch/usr
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      mountpoint: "/usr"
+      canmount: off
+      setuid: on
+      exec: on
+  - name: crypt/arch/usr/local
+    pool: zroot
+    state: present
+  - name: crypt/arch/var
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      mountpoint: "/var"
+      canmount: off
+      xattr: sa
+  - name: crypt/arch/var/cache
+    pool: zroot
+    state: present
+  - name: crypt/arch/var/lib
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      canmount: off
+  - name: crypt/arch/var/lib/containers
+    pool: zroot
+    state: present
+  - name: crypt/arch/var/lib/libvirt
+    pool: zroot
+    state: present
+  - name: crypt/arch/var/lib/lxc
+    pool: zroot
+    state: present
+  - name: crypt/arch/var/lib/lxd
+    pool: zroot
+    state: present
+  - name: crypt/arch/var/lib/machines
+    pool: zroot
+    state: present
+  - name: crypt/arch/var/lib/systemd
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      canmount: off
+  - name: crypt/arch/var/lib/systemd/crashdump
+    pool: zroot
+    state: present
+  - name: crypt/arch/var/log
+    pool: zroot
+    state: present
+  - name: crypt/arch/var/log/journal
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      acltype: posixacl
+  - name: crypt/arch/var/log/tmp
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      exec: on
+  - name: crypt/arch/home
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      exec: on
+  - name: crypt/arch/home/root
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      mountpoint: "/root"
+  - name: crypt/arch/home/jj
+    pool: zroot
+    state: present
+  - name: crypt/arch/home/jj/cache
+    pool: zroot
+    state: present
+  - name: crypt/arch/home/jj/config
+    pool: zroot
+    state: present
+  - name: crypt/arch/home/jj/local
+    pool: zroot
+    state: present
+  - name: crypt/data
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      canmount: off
+  - name: crypt/data/jj
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      mountpoint: "/home/jj"
+      canmount: off
+  - name: crypt/data/jj/code
+    pool: zroot
+    state: present
+    extra_zfs_properties:
+      exec: on
+  - name: crypt/data/jj/documents
+    pool: zroot
+    state: present
+  - name: crypt/data/jj/downloads
+    pool: zroot
+    state: present
+  - name: crypt/data/jj/media
+    pool: zroot
+    state: present
+  - name: crypt/data/jj/media/books
+    pool: zroot
+    state: present
+  - name: crypt/data/jj/media/music
+    pool: zroot
+    state: present
+  - name: crypt/data/jj/media/pictures
+    pool: zroot
+    state: present
+  - name: crypt/data/jj/media/videos
+    pool: zroot
+    state: present
+
+
